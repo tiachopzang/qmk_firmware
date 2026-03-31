@@ -1,37 +1,20 @@
-name: Update develop after master merge
-
-permissions:
-  contents: write
-
-on:
-  push:
-    branches:
-    - master
-
+name: Build Firmware
+on: [push, workflow_dispatch]
 jobs:
-  develop_update:
+  build:
     runs-on: ubuntu-latest
-
-    if: github.repository == 'qmk/qmk_firmware'
-
     steps:
-    - uses: actions/checkout@v6
-      with:
-        token: ${{ secrets.QMK_BOT_TOKEN }}
-        fetch-depth: 0
-
-    - name: Disable automatic eol conversion
-      run: |
-        echo "* -text" > .git/info/attributes
-
-    - name: Checkout develop
-      run: |
-        git fetch origin master develop
-        git checkout develop
-
-    - name: Update develop from master
-      run: |
-        git config --global user.name "QMK Bot"
-        git config --global user.email "hello@qmk.fm"
-        git merge origin/master
-        git push origin develop
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install QMK
+        run: pip3 install qmk
+      - name: Setup QMK
+        run: qmk setup -y
+      - name: Compile
+        run: qmk compile -kb handwired/antari -km default
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: antari_firmware
+          path: ./*.uf2
