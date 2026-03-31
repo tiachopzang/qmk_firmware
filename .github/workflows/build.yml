@@ -9,6 +9,8 @@ jobs:
           submodules: recursive
       - name: Install QMK
         run: pip3 install qmk
+      - name: Setup QMK
+        run: qmk setup -y
       - name: Compile
         run: qmk compile -kb handwired/antari -km default
       - name: Upload
