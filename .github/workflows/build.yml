@@ -1,0 +1,18 @@
+name: Build Firmware
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Install QMK
+        run: pip3 install qmk
+      - name: Compile
+        run: qmk compile -kb handwired/antari -km default
+      - name: Upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: my_firmware
+          path: ./*.uf2
