@@ -11,10 +11,13 @@ jobs:
         run: pip3 install qmk
       - name: Setup QMK
         run: qmk setup -y
-      - name: Link and Compile
+      - name: Prepare and Compile
         run: |
-          mkdir -p qmk_firmware/keyboards/handwired/
-          ln -s $(pwd) qmk_firmware/keyboards/handwired/antari
+          # Tạo cấu trúc thư mục đúng chuẩn QMK
+          mkdir -p keyboards/handwired/antari
+          # Chép toàn bộ file vào đúng chỗ QMK cần
+          cp -r ./* keyboards/handwired/antari/ || true
+          # Chạy lệnh biên dịch
           qmk compile -kb handwired/antari -km default
       - name: Upload
         uses: actions/upload-artifact@v4
