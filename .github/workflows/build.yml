@@ -14,7 +14,7 @@ jobs:
       - name: Compile
         run: qmk compile -kb handwired/antari -km default
       - name: Upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: my_firmware
           path: ./*.uf2
