@@ -1,0 +1,12 @@
+{
+    "name": "Antari",
+    "vendorId": "0x414E",
+    "productId": "0x5452",
+    "lighting": "none",
+    "matrix": {"rows": 1, "cols": 2},
+    "layouts": {
+        "keymap": [
+            ["0,0", "0,1"]
+        ]
+    }
+}
