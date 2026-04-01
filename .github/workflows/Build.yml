@@ -3,26 +3,19 @@ on: [push, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: qmkfm/qmk_cli
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Install QMK
-        run: pip3 install qmk
-
-      - name: Setup and Compile
+      - name: Compile Firmware
         run: |
           qmk setup -y
           qmk compile -kb handwired/antari -km default
-        env:
-          QMK_HOME: ${{ github.workspace }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: antari_firmware
-          path: |
-            *.uf2
-            *.bin
-            *.hex
+          path: ./*.uf2
