@@ -7,19 +7,18 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+
       - name: Install QMK
         run: pip3 install qmk
-      - name: Setup QMK
-        run: qmk setup -y
-      - name: Prepare and Compile
+
+      - name: Setup and Compile
         run: |
-          # Tạo cấu trúc thư mục đúng chuẩn QMK
-          mkdir -p keyboards/handwired/antari
-          # Chép toàn bộ file vào đúng chỗ QMK cần
-          cp -r ./* keyboards/handwired/antari/ || true
-          # Chạy lệnh biên dịch
+          qmk setup -y
           qmk compile -kb handwired/antari -km default
-      - name: Upload
+        env:
+          QMK_HOME: ${{ github.workspace }}
+
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: antari_firmware
