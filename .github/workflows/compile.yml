@@ -6,23 +6,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
-      - name: Install Dependencies
+      - name: Install QMK CLI
         run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-pip
           python3 -m pip install qmk
 
-      - name: Compile Firmware
+      - name: Prepare QMK and Compile
         run: |
-          # Thiết lập môi trường QMK ngay tại thư mục repo
-          export QMK_HOME=$(pwd)
+          # 1. Tải bộ khung QMK chính thức về
           qmk setup -y
           
-          # Lệnh biên dịch chính xác cho bàn phím của bạn
+          # 2. Copy bàn phím của bạn vào đúng thư mục keyboards của QMK
+          # Lệnh này sẽ copy thư mục 'antari' từ repo của bạn vào hệ thống
+          cp -R keyboards/handwired/antari ~/qmk_firmware/keyboards/handwired/
+          
+          # 3. Chạy lệnh biên dịch từ bộ khung đã có bàn phím của bạn
           qmk compile -kb handwired/antari -km default
+          
+          # 4. Đưa file kết quả ra ngoài để tải về
+          cp ~/qmk_firmware/*.uf2 . || true
+          cp ~/qmk_firmware/*.bin . || true
+          cp ~/qmk_firmware/*.hex . || true
 
       - name: Export Firmware
         uses: actions/upload-artifact@v4
