@@ -1,0 +1,22 @@
+name: QMK Compile
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: qmkfm/qmk_cli
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Run Compile
+        run: |
+          qmk setup -y
+          qmk compile -kb handwired/antari -km default
+
+      - name: Export Firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: antari_firmware
+          path: ./*.uf2
