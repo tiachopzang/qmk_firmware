@@ -10,14 +10,24 @@ jobs:
 
       - name: Run Compile
         run: |
-          # Không dùng qmk setup để tránh lỗi tải lại
-          # Chạy lệnh biên dịch trực tiếp từ thư mục repo
+          # Di chuyển thư mục bàn phím của bạn vào đúng vị trí QMK cần
+          mkdir -p /qmk_firmware/keyboards/handwired
+          cp -R keyboards/handwired/antari /qmk_firmware/keyboards/handwired/
+          
+          # Chạy lệnh biên dịch từ thư mục gốc của QMK
+          cd /qmk_firmware
           qmk compile -kb handwired/antari -km default
-        env:
-          QMK_HOME: ${{ github.workspace }}
+          
+          # Copy file kết quả ngược lại thư mục làm việc để tải về
+          cp /qmk_firmware/*.uf2 ${{ github.workspace }}/ || true
+          cp /qmk_firmware/*.bin ${{ github.workspace }}/ || true
+          cp /qmk_firmware/*.hex ${{ github.workspace }}/ || true
 
       - name: Export Firmware
         uses: actions/upload-artifact@v4
         with:
           name: antari_firmware
-          path: ./*.uf2
+          path: |
+            *.uf2
+            *.bin
+            *.hex
