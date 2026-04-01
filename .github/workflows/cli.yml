@@ -1,35 +1,20 @@
-name: CLI CI
-
-permissions:
-  contents: read
-
-on:
-  push:
-    branches:
-    - master
-    - develop
-  pull_request:
-    paths:
-    - 'lib/python/**'
-    - 'requirements.txt'
-    - '.github/workflows/cli.yml'
-
+name: Build Firmware
+on: [push, workflow_dispatch]
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
-
-    container: ghcr.io/qmk/qmk_cli
-
     steps:
-    - name: Disable safe.directory check
-      run : git config --global --add safe.directory '*'
-
-    - uses: actions/checkout@v6
-      with:
-        submodules: recursive
-
-    - name: Install dependencies
-      run: pip3 install -r requirements-dev.txt
-
-    - name: Run tests
-      run: qmk pytest
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install QMK
+        run: pip3 install qmk
+      - name: Setup QMK
+        run: qmk setup -y
+      - name: Compile
+        run: qmk compile -kb handwired/antari -km default
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: antari_firmware
+          path: ./*.uf2
