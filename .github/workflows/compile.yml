@@ -1,36 +1,23 @@
 name: QMK Manual Build
 on: [workflow_dispatch]
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout your code
-        uses: actions/checkout@v4
-        with:
-          path: my_data
-
-      - name: Setup QMK Environment
+      - uses: actions/checkout@v4
+      - name: Install QMK
         run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-pip git
           python3 -m pip install qmk
-          # Tải bộ khung QMK chính thức bản mới nhất
-          git clone --depth 1 https://github.com/qmk/qmk_firmware.git qmk_firmware
+          git clone --depth 1 https://github.com/qmk/qmk_firmware.git
           cd qmk_firmware
           qmk setup -y
-
-      - name: Place and Compile
+      - name: Compile
         run: |
-          # Copy bàn phím của bạn từ thư mục đã checkout vào trong QMK
           mkdir -p qmk_firmware/keyboards/handwired
-          cp -R my_data/keyboards/handwired/antari qmk_firmware/keyboards/handwired/
-          
-          # Biên dịch
+          ln -s $(pwd)/keyboards/handwired/antari qmk_firmware/keyboards/handwired/antari
           cd qmk_firmware
           qmk compile -kb handwired/antari -km default
-
-      - name: Upload Result
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: antari_firmware
