@@ -11,10 +11,13 @@ jobs:
       - name: Install QMK
         run: pip3 install qmk
 
-      - name: Compile Firmware
+      - name: Setup and Compile
         run: |
           qmk setup -y
+          # Tạo liên kết để QMK hiểu thư mục hiện tại là repo gốc
           qmk compile -kb handwired/antari -km default
+        env:
+          QMK_HOME: ${{ github.workspace }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
