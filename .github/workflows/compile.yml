@@ -4,27 +4,25 @@ on: [workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: qmkfm/qmk_cli
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-      - name: Run Compile
+      - name: Install Dependencies
         run: |
-          # 1. Định vị thư mục gốc của QMK trong container
-          QMK_DIR=$(qmk setup -y | grep "QMK_HOME" | cut -d ' ' -f 3 || echo "/qmk_firmware")
+          sudo apt-get update
+          sudo apt-get install -y python3-pip
+          python3 -m pip install qmk
+
+      - name: Compile Firmware
+        run: |
+          # Thiết lập môi trường QMK ngay tại thư mục repo
+          export QMK_HOME=$(pwd)
+          qmk setup -y
           
-          # 2. Tạo thư mục và copy code bàn phím của bạn vào đúng chỗ
-          mkdir -p $QMK_DIR/keyboards/handwired
-          cp -R keyboards/handwired/antari $QMK_DIR/keyboards/handwired/
-          
-          # 3. Chạy lệnh biên dịch từ thư mục đó
-          cd $QMK_DIR
+          # Lệnh biên dịch chính xác cho bàn phím của bạn
           qmk compile -kb handwired/antari -km default
-          
-          # 4. Đưa file kết quả ra ngoài để tải về
-          cp $QMK_DIR/*.uf2 ${{ github.workspace }}/ || true
-          cp $QMK_DIR/*.bin ${{ github.workspace }}/ || true
-          cp $QMK_DIR/*.hex ${{ github.workspace }}/ || true
 
       - name: Export Firmware
         uses: actions/upload-artifact@v4
