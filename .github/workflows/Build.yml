@@ -11,16 +11,18 @@ jobs:
       - name: Install QMK
         run: pip3 install qmk
 
-      - name: Compile Firmware
+      - name: Setup and Compile
         run: |
           qmk setup -y
-          # Lệnh quan trọng: Chỉ định vị trí thư mục hiện tại cho QMK
           qmk compile -kb handwired/antari -km default
         env:
           QMK_HOME: ${{ github.workspace }}
 
-      - name: Upload
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: antari_firmware
-          path: ./*.uf2
+          path: |
+            *.uf2
+            *.bin
+            *.hex
