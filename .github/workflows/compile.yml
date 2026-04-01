@@ -10,18 +10,21 @@ jobs:
 
       - name: Run Compile
         run: |
-          # 1. Chuyển code của bạn vào đúng chỗ QMK cần
-          mkdir -p /qmk_firmware/keyboards/handwired
-          cp -R keyboards/handwired/antari /qmk_firmware/keyboards/handwired/
+          # 1. Định vị thư mục gốc của QMK trong container
+          QMK_DIR=$(qmk setup -y | grep "QMK_HOME" | cut -d ' ' -f 3 || echo "/qmk_firmware")
           
-          # 2. Chạy lệnh biên dịch theo cú pháp của bản CLI mới
-          cd /qmk_firmware
-          python3 -m qmk.cli compile -kb handwired/antari -km default
+          # 2. Tạo thư mục và copy code bàn phím của bạn vào đúng chỗ
+          mkdir -p $QMK_DIR/keyboards/handwired
+          cp -R keyboards/handwired/antari $QMK_DIR/keyboards/handwired/
           
-          # 3. Gom file kết quả
-          cp /qmk_firmware/*.uf2 ${{ github.workspace }}/ || true
-          cp /qmk_firmware/*.bin ${{ github.workspace }}/ || true
-          cp /qmk_firmware/*.hex ${{ github.workspace }}/ || true
+          # 3. Chạy lệnh biên dịch từ thư mục đó
+          cd $QMK_DIR
+          qmk compile -kb handwired/antari -km default
+          
+          # 4. Đưa file kết quả ra ngoài để tải về
+          cp $QMK_DIR/*.uf2 ${{ github.workspace }}/ || true
+          cp $QMK_DIR/*.bin ${{ github.workspace }}/ || true
+          cp $QMK_DIR/*.hex ${{ github.workspace }}/ || true
 
       - name: Export Firmware
         uses: actions/upload-artifact@v4
