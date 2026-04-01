@@ -1,27 +1,21 @@
-name: QMK Manual Build
+name: QMK Build
 on: [workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: ghcr.io/qmk/qmk_cli
     steps:
+      - run: git config --global --add safe.directory '*'
       - uses: actions/checkout@v4
-      - name: Install QMK
-        run: |
-          python3 -m pip install qmk
-          git clone --depth 1 https://github.com/qmk/qmk_firmware.git
-          cd qmk_firmware
-          qmk setup -y
-      - name: Compile
-        run: |
-          mkdir -p qmk_firmware/keyboards/handwired
-          ln -s $(pwd)/keyboards/handwired/antari qmk_firmware/keyboards/handwired/antari
-          cd qmk_firmware
-          qmk compile -kb handwired/antari -km default
-      - name: Upload
-        uses: actions/upload-artifact@v4
         with:
-          name: antari_firmware
+          submodules: recursive
+      - run: |
+          export QMK_HOME=$(pwd)
+          qmk compile -kb handwired/antari -km default
+      - uses: actions/upload-artifact@v4
+        with:
+          name: firmware
           path: |
-            qmk_firmware/*.uf2
-            qmk_firmware/*.bin
-            qmk_firmware/*.hex
+            *.uf2
+            *.bin
+            *.hex
